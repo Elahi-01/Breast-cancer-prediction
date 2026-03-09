@@ -1,3 +1,4 @@
+streamlit
 flask
 gunicorn
 numpy
@@ -9,3 +10,4 @@ tensorflow==2.18.0
 matplotlib
 seaborn
 shap
+
