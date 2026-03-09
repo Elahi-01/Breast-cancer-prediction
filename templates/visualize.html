@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Visualizations – BC Hybrid App</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">Breast Cancer Prediction</a>
+    <div class="navbar-nav">
+      <a class="nav-link" href="/">Home</a>
+      <a class="nav-link" href="/dashboard">Dashboard</a>
+      <a class="nav-link active" href="/visualize">Visualize</a>
+      <a class="nav-link" href="/xai">XAI</a>
+      <a class="nav-link" href="/benchmark">Benchmark</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container my-4">
+  <h4 class="mb-3">Thesis Visualizations</h4>
+
+  {% if not plots %}
+    <div class="alert alert-warning">
+      No plots found. Please run <code>analysis/generate_plots_and_shap.py</code>.
+    </div>
+  {% else %}
+
+    <!-- Row 1: Boxplot + Probability Histogram -->
+    <div class="row">
+      {% if plots.boxplot %}
+      <div class="col-md-6 mb-3">
+        <h6>Top 5 Features by Diagnosis (Boxplot)</h6>
+        <img src="{{ plots.boxplot }}" class="img-fluid img-thumbnail" alt="Boxplot of top features">
+      </div>
+      {% endif %}
+
+      {% if plots.hist_prob %}
+      <div class="col-md-6 mb-3">
+        <h6>Hybrid Model Malignant Probability (Test set)</h6>
+        <img src="{{ plots.hist_prob }}" class="img-fluid img-thumbnail" alt="Malignant probability histogram">
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Row 2: Correlation Heatmap -->
+    {% if plots.corr %}
+    <div class="row">
+      <div class="col-12 mb-3">
+        <h6>Feature Correlation Heatmap</h6>
+        <img src="{{ plots.corr }}" class="img-fluid img-thumbnail" alt="Correlation heatmap">
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Row 3: Accuracy & F1 barplot -->
+    {% if plots.acc_f1 %}
+    <div class="row">
+      <div class="col-12 mb-3">
+        <h6>Accuracy &amp; F1 Comparison (All Models)</h6>
+        <img src="{{ plots.acc_f1 }}" class="img-fluid img-thumbnail" alt="Accuracy and F1 comparison">
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Row 4: Confusion Matrix -->
+    {% if plots.cm_hybrid %}
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <h6>Confusion Matrix – Hybrid Super Ensemble</h6>
+        <img src="{{ plots.cm_hybrid }}" class="img-fluid img-thumbnail" alt="Hybrid confusion matrix">
+      </div>
+    {% endif %}
+
+    <!-- Row 4 (right): ROC curves -->
+    {% if plots.roc_all %}
+      <div class="col-md-6 mb-3">
+        <h6>ROC Curves – All Models</h6>
+        <img src="{{ plots.roc_all }}" class="img-fluid img-thumbnail" alt="ROC curves of all models">
+      </div>
+    </div>
+    {% elif plots.cm_hybrid %}
+    </div>
+    {% endif %}
+
+  {% endif %}
+</div>
+
+</body>
+</html>

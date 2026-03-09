@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Breast Cancer Prediction – Hybrid Super Ensemble</title>
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">Breast Cancer Prediction</a>
+    <div class="navbar-nav">
+      <a class="nav-link active" href="/">Home</a>
+      <a class="nav-link" href="/dashboard">Dashboard</a>
+      <a class="nav-link" href="/visualize">Visualize</a>
+      <a class="nav-link" href="/xai">XAI</a>
+      <a class="nav-link" href="/benchmark">Benchmark</a>
+    </div>
+  </div>
+</nav>
+
+
+<div class="container my-4">
+
+  {% if error %}
+  <div class="alert alert-danger">
+    {{ error }}
+  </div>
+  {% endif %}
+
+  <div class="row">
+    <div class="col-md-7">
+      <h4 class="mb-3">Single Patient Prediction</h4>
+      <form method="POST" action="/predict_manual">
+        <div class="row g-2">
+          {% for f in features %}
+            <div class="col-md-4">
+              <label class="form-label small">{{ f }}</label>
+              <input type="number" step="any" name="{{ f }}" class="form-control form-control-sm" required>
+            </div>
+          {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm mt-3">Predict</button>
+      </form>
+
+      {% if manual_result %}
+      <div class="alert alert-info mt-3">
+        <strong>Result:</strong>
+        {{ manual_result.label }}<br>
+        <strong>Malignant probability:</strong> {{ "%.4f"|format(manual_result.prob) }}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="col-md-5">
+      <h4 class="mb-3">CSV Batch Prediction</h4>
+      <form method="POST" action="/predict_csv" enctype="multipart/form-data">
+        <div class="mb-2">
+          <input type="file" name="file" accept=".csv" class="form-control form-control-sm" required>
+        </div>
+        <button type="submit" class="btn btn-success btn-sm">Upload & Predict</button>
+      </form>
+
+      {% if csv_summary %}
+      <div class="card mt-3">
+        <div class="card-body">
+          <h6 class="card-title">Batch Summary</h6>
+          <p class="mb-1">Total: {{ csv_summary.total }}</p>
+          <p class="mb-1">Benign: {{ csv_summary.benign }}</p>
+          <p class="mb-1">Malignant: {{ csv_summary.malignant }}</p>
+
+          {% if csv_metrics %}
+            <hr>
+            <p class="mb-1"><strong>Accuracy:</strong> {{ "%.4f"|format(csv_metrics.acc) }}</p>
+            <p class="mb-1"><strong>Precision:</strong> {{ "%.4f"|format(csv_metrics.prec) }}</p>
+            <p class="mb-1"><strong>Recall:</strong> {{ "%.4f"|format(csv_metrics.rec) }}</p>
+            <p class="mb-1"><strong>F1-score:</strong> {{ "%.4f"|format(csv_metrics.f1) }}</p>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if csv_results %}
+  <div class="mt-4">
+    <h5>CSV Predictions</h5>
+    <div class="table-responsive">
+      <table class="table table-sm table-striped">
+        <thead>
+          <tr>
+            <th>Row</th>
+            <th>Predicted Label</th>
+            <th>Probability</th>
+            {% if csv_results[0].true_label is defined %}
+              <th>True Label</th>
+              <th>Correct?</th>
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in csv_results %}
+          <tr>
+            <td>{{ r.row }}</td>
+            <td>{{ r.label }}</td>
+            <td>{{ "%.4f"|format(r.prob) }}</td>
+            {% if r.true_label is defined %}
+              <td>{{ r.true_label }}</td>
+              <td>
+                {% if r.correct %}
+                  ✅
+                {% else %}
+                  ❌
+                {% endif %}
+              </td>
+            {% endif %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  <hr class="my-4">
+
+  <h5>Recent Predictions (last 20)</h5>
+  <div class="table-responsive">
+    <table class="table table-sm table-bordered">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Source</th>
+          <th>Label</th>
+          <th>Malignant Prob</th>
+          <th>Extra</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for h in history %}
+        <tr>
+          <td>{{ h.time }}</td>
+          <td>{{ h.source }}</td>
+          <td>{{ h.label }}</td>
+          <td>{{ "%.4f"|format(h.prob) }}</td>
+          <td>{{ h.extra }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+</body>
+</html>

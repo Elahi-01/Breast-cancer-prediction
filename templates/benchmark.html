@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Benchmark – BC Hybrid App</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">Breast Cancer Prediction</a>
+    <div class="navbar-nav">
+      <a class="nav-link" href="/">Home</a>
+      <a class="nav-link" href="/dashboard">Dashboard</a>
+      <a class="nav-link" href="/visualize">Visualize</a>
+      <a class="nav-link" href="/xai">XAI</a>
+      <a class="nav-link active" href="/benchmark">Benchmark</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container my-4">
+  <h4>Benchmark Machine Learning Models</h4>
+
+  {% if not table %}
+    <div class="alert alert-warning">
+      No benchmark data found. Please run analysis/generate_plots_and_shap.py
+    </div>
+  {% else %}
+    <div class="table-responsive">
+      <table class="table table-sm table-striped">
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Accuracy</th>
+            <th>Precision</th>
+            <th>Recall</th>
+            <th>F1</th>
+            <th>ROC AUC</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in table %}
+          <tr>
+            <td>{{ row.Model }}</td>
+            <td>{{ "%.4f"|format(row.Accuracy) }}</td>
+            <td>{{ "%.4f"|format(row.Precision) }}</td>
+            <td>{{ "%.4f"|format(row.Recall) }}</td>
+            <td>{{ "%.4f"|format(row.F1) }}</td>
+            <td>{{ "%.4f"|format(row.ROC_AUC) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+</div>
+
+</body>
+</html>

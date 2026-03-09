@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard – Breast Cancer Prediction</title>
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">Breast Cancer Prediction</a>
+    <div class="navbar-nav">
+      <a class="nav-link" href="/">Home</a>
+      <a class="nav-link active" href="/dashboard">Dashboard</a>
+      <a class="nav-link" href="/visualize">Visualize</a>
+      <a class="nav-link" href="/xai">XAI</a>
+      <a class="nav-link" href="/benchmark">Benchmark</a>
+    </div>
+  </div>
+</nav>
+
+
+<div class="container my-4">
+
+  <h4 class="mb-3">Prediction Dashboard</h4>
+
+  {% if not stats or stats.total == 0 %}
+    <div class="alert alert-warning">No predictions logged yet.</div>
+  {% else %}
+
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="card text-bg-primary">
+          <div class="card-body">
+            <h6 class="card-title">Total Predictions</h6>
+            <h3>{{ stats.total }}</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-bg-success">
+          <div class="card-body">
+            <h6 class="card-title">Benign</h6>
+            <h3>{{ stats.benign }}</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-bg-danger">
+          <div class="card-body">
+            <h6 class="card-title">Malignant</h6>
+            <h3>{{ stats.malignant }}</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-bg-secondary">
+          <div class="card-body">
+            <h6 class="card-title">Avg Probability</h6>
+            <h3>{{ "%.4f"|format(stats.avg_prob or 0) }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mb-4">
+      <div class="col-md-5">
+        <canvas id="pieChart"></canvas>
+      </div>
+      <div class="col-md-7">
+        <h6>Recent Predictions</h6>
+        <div class="table-responsive">
+          <table class="table table-sm table-striped">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Source</th>
+                <th>Label</th>
+                <th>Prob</th>
+                <th>Extra</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for h in history %}
+              <tr>
+                <td>{{ h.time }}</td>
+                <td>{{ h.source }}</td>
+                <td>{{ h.label }}</td>
+                <td>{{ "%.4f"|format(h.prob) }}</td>
+                <td>{{ h.extra }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  {% endif %}
+
+</div>
+
+<script>
+  const stats = {{ stats|tojson }};
+  if (stats && stats.total > 0) {
+    const ctx = document.getElementById('pieChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Benign', 'Malignant'],
+        datasets: [{
+          data: [stats.benign, stats.malignant],
+          backgroundColor: ['#4caf50', '#f44336']
+        }]
+      },
+      options: {
+        plugins: {
+          title: {
+            display: true,
+            text: 'Benign vs Malignant Predictions'
+          }
+        }
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
